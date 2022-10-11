@@ -71,10 +71,14 @@ const player = new Fighter({
         takeHit: {
             imageSrc: './img/samuraiMack/Take Hit - white silhouette.png',
             framesMax: 4
+        },
+        death: {
+            imageSrc: './img/samuraiMack/Death.png',
+            framesMax: 6
         }
     },
-    attackBox:{
-        offset:{
+    attackBox: {
+        offset: {
             x: 100,
             y: 50
         },
@@ -129,10 +133,14 @@ const enemy = new Fighter({
         takeHit: {
             imageSrc: './img/kenji/Take hit.png',
             framesMax: 3
+        },
+        death: {
+            imageSrc: './img/kenji/Death.png',
+            framesMax: 7
         }
     },
-    attackBox:{
-        offset:{
+    attackBox: {
+        offset: {
             x: -170,
             y: 50
         },
@@ -211,21 +219,25 @@ function animate() {
     if (rectangularCollision({ rectangle1: player, rectangle2: enemy }) && player.isAttacking && player.framesCurrent === 4) {
         enemy.takeHit()
         player.isAttacking = false
-        document.querySelector('#enemyHealth').style.width = enemy.health + '%'
+        gsap.to('#enemyHealth', {
+            width: enemy.health + '%'
+        })
     }
 
     // if player misses
-    if(player.isAttacking && player.framesCurrent === 4){
+    if (player.isAttacking && player.framesCurrent === 4) {
         player.isAttacking = false
     }
-        if (rectangularCollision({ rectangle1: enemy, rectangle2: player }) && enemy.isAttacking && enemy.framesCurrent === 2) {
-            player.takeHit()
-            enemy.isAttacking = false
-            document.querySelector('#playerHealth').style.width = player.health + '%'
-        }
-        // if enemy misses
-        if(enemy.isAttacking && enemy.framesCurrent === 2){
-            enemy.isAttacking = false
+    if (rectangularCollision({ rectangle1: enemy, rectangle2: player }) && enemy.isAttacking && enemy.framesCurrent === 2) {
+        player.takeHit()
+        enemy.isAttacking = false
+        gsap.to('#playerHealth', {
+            width: player.health + '%'
+        })
+    }
+    // if enemy misses
+    if (enemy.isAttacking && enemy.framesCurrent === 2) {
+        enemy.isAttacking = false
     }
     // enemy game based on health
     if (enemy.health <= 0 || player.health <= 0) {
@@ -236,43 +248,51 @@ function animate() {
 animate()
 
 window.addEventListener('keydown', (event) => {
-    switch (event.key) {
-        case 'd':
-            keys.d.pressed = true
-            player.lastKey = 'd'
-            break
+    if (!player.dead) {
 
-        case 'a':
-            keys.a.pressed = true
-            player.lastKey = 'a'
-            break
+        switch (event.key) {
+            case 'd':
+                keys.d.pressed = true
+                player.lastKey = 'd'
+                break
 
-        case 'w':
-            player.velocity.y = -20
-            player.lastKey = 'w'
-            break
+            case 'a':
+                keys.a.pressed = true
+                player.lastKey = 'a'
+                break
 
-        case ' ':
-            player.attack()
-            break
+            case 'w':
+                player.velocity.y = -20
+                player.lastKey = 'w'
+                break
+
+            case ' ':
+                player.attack()
+                break
 
 
-        case 'ArrowLeft':
-            keys.ArrowLeft.pressed = true
-            enemy.lastKey = 'ArrowLeft'
-            break
-        case 'ArrowRight':
-            keys.ArrowRight.pressed = true
-            enemy.lastKey = 'ArrowRight'
-            break
 
-        case 'ArrowUp':
-            enemy.velocity.y = -20
-            break
+        }
+    }
+    if (!enemy.dead) {
+        switch (event.key) {
+            case 'ArrowLeft':
+                keys.ArrowLeft.pressed = true
+                enemy.lastKey = 'ArrowLeft'
+                break
+            case 'ArrowRight':
+                keys.ArrowRight.pressed = true
+                enemy.lastKey = 'ArrowRight'
+                break
 
-        case 'ArrowDown':
-            enemy.attack()
-            break
+            case 'ArrowUp':
+                enemy.velocity.y = -20
+                break
+
+            case 'ArrowDown':
+                enemy.attack()
+                break
+        }
     }
 })
 
